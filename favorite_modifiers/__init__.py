@@ -21,8 +21,7 @@
 
 import bpy
 from bl_ui.properties_data_modifier import (DATA_PT_gpencil_modifiers,
-                                            DATA_PT_modifiers,
-                                            ModifierButtonsPanel)
+                                            DATA_PT_modifiers)
 from bpy.app.handlers import persistent
 from bpy.props import (BoolProperty, EnumProperty, PointerProperty,
                        StringProperty)
@@ -45,57 +44,23 @@ bl_info = {
 
 
 def get_favorite_modifiers(context):
-    obj_type = context.active_object.type
+    ob_type = context.active_object.type
     favorite_modifiers = context.scene.favorite_modifiers
 
-    if obj_type in 'CURVE FONT SURFACE':
-        obj_type = 'CURVE'
+    if ob_type in 'CURVE FONT SURFACE':
+        ob_type = 'CURVE'
 
-    return getattr(favorite_modifiers, obj_type.lower() + '_modifiers')
+    return getattr(favorite_modifiers, ob_type.lower() + '_modifiers')
 
 
 def set_favorite_modifiers(context, value):
-    obj_type = context.active_object.type
+    ob_type = context.active_object.type
     favorite_modifiers = context.scene.favorite_modifiers
 
-    if obj_type in 'CURVE FONT SURFACE':
-        obj_type = 'CURVE'
+    if ob_type in 'CURVE FONT SURFACE':
+        ob_type = 'CURVE'
 
-    setattr(favorite_modifiers, obj_type.lower() + '_modifiers', value)
-
-
-class DATA_PT_favorite_modifiers(ModifierButtonsPanel, Panel):
-    bl_label = "Favorite Modifiers"
-
-    mods = []
-
-    @classmethod
-    def poll(cls, context):
-        fms = get_favorite_modifiers(context)[:-1].split(',')
-        cls.mods = []
-
-        for mod_type in fms:
-            mod = find(lambda mod: mod.identifier == mod_type, modifiers)
-            if mod:
-                cls.mods.append(mod)
-
-        return len(cls.mods) > 0
-
-    def draw(self, context):
-        layout = self.layout
-        col = layout.column(align=True)
-        i = 0
-
-        for mod in self.mods:
-            if i % 2 == 0:
-                row = col.row(align=True)
-
-            row.operator("object.add_favorite_modifier",
-                         text=mod.name, icon=mod.icon).mod_type = mod.identifier
-            i = i + 1
-
-        if i % 2 > 0:
-            row.label()
+    setattr(favorite_modifiers, ob_type.lower() + '_modifiers', value)
 
 
 class MODIFIER_OT_append_to_favorites(Operator):
@@ -107,7 +72,7 @@ class MODIFIER_OT_append_to_favorites(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return context.object is not None
 
     def execute(self, context):
         fm = get_favorite_modifiers(context)
@@ -125,7 +90,7 @@ class MODIFIER_OT_remove_from_favorites(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.active_object is not None
+        return context.object is not None
 
     def execute(self, context):
         fm = get_favorite_modifiers(context)
@@ -210,15 +175,35 @@ def find(f, seq):
     return None
 
 
+def draw_favorite_modifiers(self, context):
+    mods = []
+    fms = get_favorite_modifiers(context)[:-1].split(',')
+
+    for mod_type in fms:
+        mod = find(lambda mod: mod.identifier == mod_type, modifiers)
+        if mod:
+            mods.append(mod)
+
+    if len(mods) > 0:
+        layout = self.layout
+        col = layout.column(align=True)
+        i = 0
+
+        for mod in mods:
+            if i % 2 == 0:
+                row = col.row(align=True)
+
+            row.operator("object.add_favorite_modifier",
+                         text=mod.name, icon=mod.icon).mod_type = mod.identifier
+            i = i + 1
+
+        if i % 2 > 0:
+            row.label()
+
+
 def register():
     for cls in classes:
         register_class(cls)
-
-    unregister_class(DATA_PT_modifiers)
-    unregister_class(DATA_PT_gpencil_modifiers)
-    register_class(DATA_PT_favorite_modifiers)
-    register_class(DATA_PT_modifiers)
-    register_class(DATA_PT_gpencil_modifiers)
 
     Scene.favorite_modifiers = PointerProperty(type=FavoriteModifiers)
 
@@ -228,12 +213,16 @@ def register():
     for mod in GpencilModifier.bl_rna.properties['type'].enum_items:
         modifiers.append(mod)
 
+    DATA_PT_modifiers.prepend(draw_favorite_modifiers)
+    DATA_PT_gpencil_modifiers.prepend(draw_favorite_modifiers)
+
 
 def unregister():
     for cls in classes:
         unregister_class(cls)
 
-    unregister_class(DATA_PT_favorite_modifiers)
+    DATA_PT_modifiers.remove(draw_favorite_modifiers)
+    DATA_PT_gpencil_modifiers.remove(draw_favorite_modifiers)
 
 
 if __name__ == "__main__":
