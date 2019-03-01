@@ -31,7 +31,7 @@ from bpy.utils import register_class, unregister_class
 
 bl_info = {
     "name": "Favorite Modifiers",
-    "description": "Buttons with favorite modofifiers in properties panel",
+    "description": "Buttons with favorite modifiers on top of the Modifier Stack",
     "author": "Oleg Stepanov",
     "version": (1, 0, 0),
     "blender": (2, 80, 0),
