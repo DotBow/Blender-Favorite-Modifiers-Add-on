@@ -25,8 +25,8 @@ from bl_ui.properties_data_modifier import (DATA_PT_gpencil_modifiers,
 from bpy.app.handlers import persistent
 from bpy.props import (BoolProperty, EnumProperty, PointerProperty,
                        StringProperty)
-from bpy.types import (GpencilModifier, Menu, Modifier, Operator, Panel,
-                       PropertyGroup, Scene)
+from bpy.types import (AddonPreferences, GpencilModifier, Menu, Modifier,
+                       Operator, Panel, PropertyGroup, Scene)
 from bpy.utils import register_class, unregister_class
 
 bl_info = {
@@ -41,6 +41,22 @@ bl_info = {
     "support": 'COMMUNITY',
     "category": "Properties"
 }
+
+
+class FavoriteModifiersAddonPreferences(AddonPreferences):
+    bl_idname = __name__
+
+    display_style_items = [
+        ("BUTTONS", "Buttons", "", 1),
+        ("ICONS", "Icons", "", 2),
+    ]
+
+    display_style = EnumProperty(
+        name="Display Style", items=display_style_items)
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "display_style")
 
 
 def get_favorite_modifiers(context):
@@ -102,7 +118,7 @@ class MODIFIER_OT_remove_from_favorites(Operator):
 class MODIFIER_OT_add_favorite_modifier(Operator):
     """Add a procedural operation/effect to the active object"""
     bl_idname = "object.add_favorite_modifier"
-    bl_label = "Remove from Favorites Modifiers"
+    bl_label = "Add Favorite Modifier"
 
     mod_type: StringProperty()
 
@@ -155,18 +171,6 @@ class FavoriteModifiers(PropertyGroup):
     mesh_modifiers = StringProperty(default="")
 
 
-classes = (
-    MODIFIER_OT_append_to_favorites,
-    MODIFIER_OT_remove_from_favorites,
-    MODIFIER_OT_add_favorite_modifier,
-    WM_MT_button_context,
-    FavoriteModifiers,
-)
-
-
-modifiers = []
-
-
 def find(f, seq):
     for item in seq:
         if f(item):
@@ -186,19 +190,44 @@ def draw_favorite_modifiers(self, context):
 
     if len(mods) > 0:
         layout = self.layout
-        col = layout.column(align=True)
-        i = 0
+        prefs = context.preferences
+        addon_prefs = prefs.addons[__name__].preferences
+        display_style = addon_prefs.display_style
 
-        for mod in mods:
-            if i % 2 == 0:
-                row = col.row(align=True)
+        if display_style == 'BUTTONS':
+            grid_flow = layout.grid_flow(
+                row_major=True, columns=2,
+                even_columns=True, even_rows=True,
+                align=True)
 
-            row.operator("object.add_favorite_modifier",
-                         text=mod.name, icon=mod.icon).mod_type = mod.identifier
-            i = i + 1
+            for mod in mods:
+                grid_flow.operator("object.add_favorite_modifier",
+                                   text=mod.name,
+                                   icon=mod.icon).mod_type = mod.identifier
+        elif display_style == 'ICONS':
+            grid_flow = layout.grid_flow(
+                row_major=True, columns=0,
+                even_columns=True, even_rows=True,
+                align=True)
+            grid_flow.scale_x = 1.4
+            grid_flow.scale_y = 1.4
 
-        if i % 2 > 0:
-            row.label()
+            for mod in mods:
+                grid_flow.operator("object.add_favorite_modifier", text="",
+                                   icon=mod.icon).mod_type = mod.identifier
+
+
+classes = (
+    FavoriteModifiersAddonPreferences,
+    MODIFIER_OT_append_to_favorites,
+    MODIFIER_OT_remove_from_favorites,
+    MODIFIER_OT_add_favorite_modifier,
+    WM_MT_button_context,
+    FavoriteModifiers,
+)
+
+
+modifiers = []
 
 
 def register():
