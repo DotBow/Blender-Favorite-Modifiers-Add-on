@@ -1,1 +1,1 @@
-# Blender-Favorite-Modifiers-Add-on
+# Blender Favorite Modifiers Add-on
