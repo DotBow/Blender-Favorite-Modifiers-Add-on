@@ -31,15 +31,15 @@ from bpy.utils import register_class, unregister_class
 
 bl_info = {
     "name": "Favorite Modifiers",
-    "description": "Buttons with favorite modifiers on top of the Modifier Stack",
+    "description": "Shows buttons with favorite modifiers on top of the Modifier Stack",
     "author": "Oleg Stepanov",
     "version": (1, 0, 0),
     "blender": (2, 80, 0),
-    "location": "Properties > Modifiers",
+    "location": "Properties Editor > Modifiers",
     "warning": "",
     "wiki_url": "",
     "support": 'COMMUNITY',
-    "category": "Properties"
+    "category": "Modifiers"
 }
 
 
@@ -56,6 +56,10 @@ class FavoriteModifiersAddonPreferences(AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
+        col = layout.column()
+        col.label(text="Favorite modifiers grouped per object type:")
+        col.label(text="Mesh, Lattice, Curve/Font/Surface, Grease Pencil.")
+        col.label(text="Favorite modifiers stored in Startup File.")
         layout.prop(self, "display_style")
 
 
