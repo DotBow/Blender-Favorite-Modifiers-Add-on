@@ -51,7 +51,7 @@ class FavoriteModifiersAddonPreferences(AddonPreferences):
         ("ICONS", "Icons", "", 2),
     ]
 
-    display_style = EnumProperty(
+    display_style: EnumProperty(
         name="Display Style", items=display_style_items)
 
     def draw(self, context):
