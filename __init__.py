@@ -169,10 +169,10 @@ class WM_MT_button_context(Menu):
 
 
 class FavoriteModifiers(PropertyGroup):
-    curve_modifiers = StringProperty(default="")
-    lattice_modifiers = StringProperty(default="")
-    gpencil_modifiers = StringProperty(default="")
-    mesh_modifiers = StringProperty(default="")
+    curve_modifiers: StringProperty(default="")
+    lattice_modifiers: StringProperty(default="")
+    gpencil_modifiers: StringProperty(default="")
+    mesh_modifiers: StringProperty(default="")
 
 
 def find(f, seq):
