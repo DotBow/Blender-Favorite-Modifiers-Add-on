@@ -11,4 +11,5 @@ Favorite modifiers grouped per object type:
 
 Favorite modifiers stored in Startup File, so use **File -> Save Startup File**.
 
-[Small video with features preview on Twitter](https://twitter.com/StolenDotBow/status/1105337118203830272)
+[**Blenderartists topic**](https://twitter.com/StolenDotBow/status/1105337118203830272)
+
