@@ -46,6 +46,11 @@ bl_info = {
 class FavoriteModifiersAddonPreferences(AddonPreferences):
     bl_idname = __name__
 
+    curve_modifiers: StringProperty(default="")
+    lattice_modifiers: StringProperty(default="")
+    gpencil_modifiers: StringProperty(default="")
+    mesh_modifiers: StringProperty(default="")
+
     display_style_items = [
         ("BUTTONS", "Buttons", "", 1),
         ("ICONS", "Icons", "", 2),
@@ -59,32 +64,32 @@ class FavoriteModifiersAddonPreferences(AddonPreferences):
         col = layout.column()
         col.label(text="Favorite modifiers grouped per object type:")
         col.label(text="Mesh, Lattice, Curve/Font/Surface, Grease Pencil.")
-        col.label(text="Favorite modifiers stored in Startup File.")
+        col.label(text="Favorite modifiers stored in User Preferences.")
         layout.prop(self, "display_style")
 
 
 def get_favorite_modifiers(context):
     ob_type = context.active_object.type
-    favorite_modifiers = context.scene.favorite_modifiers
+    addon_prefs = context.preferences.addons[__name__].preferences
 
     if ob_type in 'CURVE FONT SURFACE':
         ob_type = 'CURVE'
 
-    return getattr(favorite_modifiers, ob_type.lower() + '_modifiers')
+    return getattr(addon_prefs, ob_type.lower() + '_modifiers')
 
 
 def set_favorite_modifiers(context, value):
     ob_type = context.active_object.type
-    favorite_modifiers = context.scene.favorite_modifiers
+    addon_prefs = context.preferences.addons[__name__].preferences
 
     if ob_type in 'CURVE FONT SURFACE':
         ob_type = 'CURVE'
 
-    setattr(favorite_modifiers, ob_type.lower() + '_modifiers', value)
+    setattr(addon_prefs, ob_type.lower() + '_modifiers', value)
 
 
 class MODIFIER_OT_append_to_favorites(Operator):
-    """Add to Favorite Modifiers list (stored in Startup File)"""
+    """Add to Favorite Modifiers list (stored in User Preferences)"""
     bl_idname = "object.append_to_favorites"
     bl_label = "Add to Favorites Modifiers"
 
@@ -102,7 +107,7 @@ class MODIFIER_OT_append_to_favorites(Operator):
 
 
 class MODIFIER_OT_remove_from_favorites(Operator):
-    """Remove from Favorite Modifiers list (stored in Startup File)"""
+    """Remove from Favorite Modifiers list (stored in User Preferences)"""
     bl_idname = "object.remove_from_favorites"
     bl_label = "Remove from Favorites Modifiers"
 
@@ -168,13 +173,6 @@ class WM_MT_button_context(Menu):
                                 icon='SOLO_ON').mod_type = getattr(op, 'mod_type')
 
 
-class FavoriteModifiers(PropertyGroup):
-    curve_modifiers: StringProperty(default="")
-    lattice_modifiers: StringProperty(default="")
-    gpencil_modifiers: StringProperty(default="")
-    mesh_modifiers: StringProperty(default="")
-
-
 def find(f, seq):
     for item in seq:
         if f(item):
@@ -227,7 +225,6 @@ classes = (
     MODIFIER_OT_remove_from_favorites,
     MODIFIER_OT_add_favorite_modifier,
     WM_MT_button_context,
-    FavoriteModifiers,
 )
 
 
@@ -237,8 +234,6 @@ modifiers = []
 def register():
     for cls in classes:
         register_class(cls)
-
-    Scene.favorite_modifiers = PointerProperty(type=FavoriteModifiers)
 
     for mod in Modifier.bl_rna.properties['type'].enum_items:
         modifiers.append(mod)
