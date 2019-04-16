@@ -9,7 +9,7 @@ Favorite modifiers grouped per object type:
 * Curve/Font/Surface
 * Grease Pencil
 
-Favorite modifiers stored in Startup File, so use **File -> Save Startup File**.
+Favorite modifiers stored in User Preferences, so use **Preferences -> Save Preferences**.
 
 [**Blenderartists topic**](https://blenderartists.org/t/blender-favorite-modifiers-add-on/1150796)
 
