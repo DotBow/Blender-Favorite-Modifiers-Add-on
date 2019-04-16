@@ -33,7 +33,7 @@ bl_info = {
     "name": "Favorite Modifiers",
     "description": "Shows buttons with favorite modifiers on top of the Modifier Stack",
     "author": "Oleg Stepanov",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (2, 80, 0),
     "location": "Properties Editor > Modifiers",
     "warning": "",
