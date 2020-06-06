@@ -124,27 +124,6 @@ class MODIFIER_OT_remove_from_favorites(Operator):
         return {'FINISHED'}
 
 
-class MODIFIER_OT_add_favorite_modifier(Operator):
-    """Add a procedural operation/effect to the active object"""
-    bl_idname = "object.add_favorite_modifier"
-    bl_label = "Add Favorite Modifier"
-
-    mod_type: StringProperty()
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-
-    def execute(self, context):
-        active_object_type = context.active_object.type
-
-        if active_object_type == 'GPENCIL':
-            bpy.ops.object.gpencil_modifier_add(type=self.mod_type)
-        else:
-            bpy.ops.object.modifier_add(type=self.mod_type)
-        return {'FINISHED'}
-
-
 class WM_MT_button_context(Menu):
     bl_label = "Append/Remove Favorite Modifier"
 
@@ -203,9 +182,9 @@ def draw_favorite_modifiers(self, context):
                 align=True)
 
             for mod in mods:
-                grid_flow.operator("object.add_favorite_modifier",
+                grid_flow.operator("object.modifier_add",
                                    text=mod.name,
-                                   icon=mod.icon).mod_type = mod.identifier
+                                   icon=mod.icon).type = mod.identifier
         elif display_style == 'ICONS':
             grid_flow = layout.grid_flow(
                 row_major=True, columns=0,
@@ -215,15 +194,14 @@ def draw_favorite_modifiers(self, context):
             grid_flow.scale_y = 1.4
 
             for mod in mods:
-                grid_flow.operator("object.add_favorite_modifier", text="",
-                                   icon=mod.icon).mod_type = mod.identifier
+                grid_flow.operator("object.modifier_add", text="",
+                                   icon=mod.icon).type = mod.identifier
 
 
 classes = (
     FavoriteModifiersAddonPreferences,
     MODIFIER_OT_append_to_favorites,
     MODIFIER_OT_remove_from_favorites,
-    MODIFIER_OT_add_favorite_modifier,
     WM_MT_button_context,
 )
 
