@@ -175,6 +175,11 @@ def draw_favorite_modifiers(self, context):
         addon_prefs = prefs.addons[__name__].preferences
         display_style = addon_prefs.display_style
 
+        if context.active_object.type == "GPENCIL":
+            _operator = "object.gpencil_modifier_add"
+        else:
+            _operator = "object.modifier_add"
+
         if display_style == 'BUTTONS':
             grid_flow = layout.grid_flow(
                 row_major=True, columns=2,
@@ -182,9 +187,7 @@ def draw_favorite_modifiers(self, context):
                 align=True)
 
             for mod in mods:
-                grid_flow.operator("object.modifier_add",
-                                   text=mod.name,
-                                   icon=mod.icon).type = mod.identifier
+                grid_flow.operator(_operator, text=mod.name, icon=mod.icon).type = mod.identifier
         elif display_style == 'ICONS':
             grid_flow = layout.grid_flow(
                 row_major=True, columns=0,
@@ -194,8 +197,7 @@ def draw_favorite_modifiers(self, context):
             grid_flow.scale_y = 1.4
 
             for mod in mods:
-                grid_flow.operator("object.modifier_add", text="",
-                                   icon=mod.icon).type = mod.identifier
+                grid_flow.operator(_operator, text="", icon=mod.icon).type = mod.identifier
 
 
 classes = (
