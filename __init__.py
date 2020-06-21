@@ -23,8 +23,8 @@ import bpy
 from bl_ui.properties_data_modifier import (DATA_PT_gpencil_modifiers,
                                             DATA_PT_modifiers)
 from bpy.app.handlers import persistent
-from bpy.props import (BoolProperty, EnumProperty, PointerProperty,
-                       StringProperty)
+from bpy.props import (BoolProperty, EnumProperty, FloatProperty,
+                       PointerProperty, StringProperty)
 from bpy.types import (AddonPreferences, GpencilModifier, Menu, Modifier,
                        Operator, Panel, PropertyGroup, Scene)
 from bpy.utils import register_class, unregister_class
@@ -58,6 +58,8 @@ class FavoriteModifiersAddonPreferences(AddonPreferences):
 
     display_style: EnumProperty(
         name="Display Style", items=display_style_items)
+    icons_size: FloatProperty(
+        name="Icons Size", default=1.4, min=1.0)
 
     def draw(self, context):
         layout = self.layout
@@ -66,6 +68,9 @@ class FavoriteModifiersAddonPreferences(AddonPreferences):
         col.label(text="Mesh, Lattice, Curve/Font/Surface, Grease Pencil.")
         col.label(text="Favorite modifiers stored in User Preferences.")
         layout.prop(self, "display_style")
+
+        if self.display_style == 'ICONS':
+            layout.prop(self, "icons_size")
 
 
 def get_favorite_modifiers(context):
@@ -193,8 +198,9 @@ def draw_favorite_modifiers(self, context):
                 row_major=True, columns=0,
                 even_columns=True, even_rows=True,
                 align=True)
-            grid_flow.scale_x = 1.4
-            grid_flow.scale_y = 1.4
+            icons_size = addon_prefs.icons_size
+            grid_flow.scale_x = icons_size
+            grid_flow.scale_y = icons_size
 
             for mod in mods:
                 grid_flow.operator(_operator, text="", icon=mod.icon).type = mod.identifier
