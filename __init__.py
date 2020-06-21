@@ -133,7 +133,10 @@ class WM_MT_button_context(Menu):
     bl_label = "Append/Remove Favorite Modifier"
 
     def draw(self, context):
-        if context.space_data.context != 'MODIFIER':
+        if hasattr(context.space_data, 'context'):
+            if context.space_data.context != 'MODIFIER':
+                return
+        else:
             return
 
         if hasattr(context, 'button_operator'):
